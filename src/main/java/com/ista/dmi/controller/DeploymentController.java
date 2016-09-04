@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -19,13 +20,17 @@ public class DeploymentController {
   public String getDeployment(Model model) {
     model.addAttribute("buildModules", modules);
     model.addAttribute("dbModules", dbModules);
+    model.addAttribute("deployment", new DeploymentModel());
     
     return "deployment";
   }
   
 
   @RequestMapping(value = "/deployment", method = POST)
-  public Model postDeployment(Model model) {
+  public Model postDeployment(@ModelAttribute DeploymentModel deploymentModel, Model model) {
+    model.addAttribute("buildModules", modules);
+    model.addAttribute("dbModules", dbModules);
+    model.addAttribute("deployment", new DeploymentModel());
     
     return model;
   }

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="css/bootstrap.css" rel="stylesheet"/>
+<link href="css/bootstrap-switch.css" rel="stylesheet"/>
+</head>
+<body>
+<form th:object="${deployment}" action="#" th:action="@{/deployment}" method="post">
+
+    <div th:each="buildModule,iterStat : ${buildModules}">
+      <div class="form-group">
+        <label th:text="${buildModule}" th:for="${iterStat.index}"></label>
+        <input th:id="${iterStat.index}" th:value="${buildModule}" th:field="*{deployment}" type="checkbox" class="form-controll"/>
+      </div>
+    </div>
+  <input type="submit" />
+</form>
+
+
+
+<script src="js/jquery-3.1.0.min.js"></script>
+<script src="js/bootstrap-switch.js"></script>
+<script>
+  $(function(argument) {
+	$('[type="checkbox"]').bootstrapSwitch();
+  })
+</script>
+
+</body>
+</html>
