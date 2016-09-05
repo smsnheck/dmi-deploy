@@ -13,5 +13,4 @@ public class DeploymentModel {
   public void setDeployment(List<String> deployment) {
     this.deployment = deployment;
   }
-  
 }
