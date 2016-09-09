@@ -4,26 +4,88 @@
 <link href="css/bootstrap.css" rel="stylesheet"/>
 <link href="css/bootstrap-switch.css" rel="stylesheet"/>
 </head>
-<body>
-<form th:object="${deployment}" action="#" th:action="@{/deployment}" method="post">
+<body onload="changeBackgroundColor('LightGreen')">
 
-    <div th:each="buildModule,iterStat : ${buildModules}">
-      <div class="form-group">
-        <label th:text="${buildModule}" th:for="${iterStat.index}"></label>
-        <input th:id="${iterStat.index}" th:value="${buildModule}" th:field="*{deployment}" type="checkbox" class="form-controll"/>
-      </div>
+<div class="container-fluid">
+<div class="row">
+  <div class="col-md-4 col-md-offset-1">
+<form th:object="${deployment}" action="#" th:action="@{/deployment}" method="post" class="form-horizontal">
+
+  <h4>Update sources
+  <span th:if="${gitExitCode} == 0" class="label label-success">Success</span>
+  <span th:if="${gitExitCode} != null and ${gitExitCode} > 0" class="label label-warning">Failed</span>
+  </h4>
+    <div class="form-group">
+      <label for="gitUpdate">git pull</label>
+      <input data-size="mini" id="gitUpdate" data-on-color="warning" value="gitUpdate" th:field="*{gitUpdate}" type="checkbox" class="form-controll"/>
     </div>
-  <input type="submit" />
-</form>
 
+  <h4>Build modules
+  <span th:if="${mavenExitCode} == 0" class="label label-success">Success</span>
+  <span th:if="${mavenExitCode} != null and ${mavenExitCode} > 0" class="label label-warning">Failed</span>
+  </h4>
+  <div class="form-group">
+    <span>Build all</span>
+    <input data-size="mini" id="buildAll" name="buildAll" type="checkbox" class="form-controll"/>
+  </div>
+
+  <div th:each="buildModule,iterStat : ${buildModules}">
+    <div class="form-group">
+      <label th:text="|Build ${buildModule}|" th:for="${iterStat.index}"></label>
+      <input data-size="mini" th:id="${iterStat.index}" th:value="${buildModule}" th:field="*{deployment}" type="checkbox" class="form-controll build"/>
+    </div>
+  </div>
+
+  <h4>Update database
+  <span th:if="${liquibaseExitCode} == 0" class="label label-success">Success</span>
+  <span th:if="${liquibaseExitCode} != null and ${liquibaseExitCode} > 0" class="label label-warning">Failed</span>
+  </h4>
+    <div class="form-group">
+      <label for="dbUpdate">Update Database</label>
+      <input data-size="mini" id="dbUpdate" data-on-color="danger" value="dbUpdate" th:field="*{dbUpdate}" type="checkbox" class="form-controll"/>
+
+    </div>
+
+  <h4>Copy wars
+  <span th:if="${copyExitCode} == 0" class="label label-success">Success</span>
+  <span th:if="${copyExitCode} != null and ${copyExitCode} > 0" class="label label-warning">Failed</span>
+  </h4>
+  <div th:each="copyModule,iterStat : ${copyModules}">
+    <div class="form-group">
+      <label th:text="|Copy ${copyModule}|" th:for="${iterStat.index}"></label>
+      <input data-size="mini" th:id="${iterStat.index}" data-on-color="success" th:value="${copyModule}" th:field="*{copyModules}" type="checkbox" class="form-controll"/>
+    </div>
+  </div>
+
+  <input type="submit" onclick="changeBackgroundColor('LightCoral')"/>
+</form>
+</div>
+</div>
+</div>
 
 
 <script src="js/jquery-3.1.0.min.js"></script>
+<script src="js/bootstrap.js"></script>
 <script src="js/bootstrap-switch.js"></script>
 <script>
   $(function(argument) {
-	$('[type="checkbox"]').bootstrapSwitch();
-  })
+	$('[type="checkbox"]').bootstrapSwitch(
+    {size: 'mini'}
+  );
+  });
+
+  $('#buildAll').change(function () {
+    if ($(this).prop('checked')) {
+      $('.build').prop('checked', true);
+    }
+    else {
+      $('.build').prop('checked', false);
+    }
+  });
+
+  function changeBackgroundColor(color) {
+    document.body.style.background = color;
+  }
 </script>
 
 </body>

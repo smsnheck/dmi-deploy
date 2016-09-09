@@ -1,7 +1,9 @@
 package com.ista.dmi.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.ista.dmi.enumeration.Modules;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,12 +18,13 @@ public class BuildService {
   
   @Autowired
   private ShellCommandExecutor shellCommandExecutor;
-  
-  public void build(List<String> modules) {
-    modules.stream().forEach(module -> {
-      shellCommandExecutor.executeCommand("cd " + dmiSource + module + "\\-parent");
-      shellCommandExecutor.executeCommand(ShellCommands.MAVEN_BUILD.getCommand());
+
+  public int build(List<String> modules) {
+    List<Integer> result = new ArrayList<>();
+    modules.forEach(module -> {
+      result.add(shellCommandExecutor.executeCommand(ShellCommands.MAVEN_BUILD.getCommand() + " -f " + dmiSource + Modules.valueOf(module.toUpperCase()).getModulePath()));
     });
+    return result.stream().mapToInt(Integer::intValue).sum();
   }
 
 }
