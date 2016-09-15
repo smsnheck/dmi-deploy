@@ -67,25 +67,9 @@
 <script src="js/jquery-3.1.0.min.js"></script>
 <script src="js/bootstrap.js"></script>
 <script src="js/bootstrap-switch.js"></script>
+<script src="js/dmiDeploy.js"></script>
 <script>
-  $(function(argument) {
-	$('[type="checkbox"]').bootstrapSwitch(
-    {size: 'mini'}
-  );
-  });
 
-  $('#buildAll').change(function () {
-    if ($(this).prop('checked')) {
-      $('.build').prop('checked', true);
-    }
-    else {
-      $('.build').prop('checked', false);
-    }
-  });
-
-  function changeBackgroundColor(color) {
-    document.body.style.background = color;
-  }
 </script>
 
 </body>
