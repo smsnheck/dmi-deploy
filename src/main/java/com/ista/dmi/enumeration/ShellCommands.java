@@ -5,6 +5,8 @@ public enum ShellCommands {
   MAVEN_BUILD("mvn clean install -U -T 2 -Dmaven.test.skip=true"),
   UPDATE_DATABASE("mvn liquibase:update -PupdateSQL -Dliquibase.contexts=update,review,POST-PROPERTY-INSERT -f %spom.xml"),
   GIT_UPDATE("git --git-dir=%s.git --work-tree=%s pull"),
+  WIDLFLY_STOP("sudo service wildfly stop"),
+  WIDLFLY_START("sudo service wildfly start"),
   COPY("xcopy %s\\*.war %s%s.war /Y");
 
   private final String command;

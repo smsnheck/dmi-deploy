@@ -3,13 +3,12 @@ package com.ista.dmi.controller;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.ista.dmi.service.BuildService;
-import com.ista.dmi.service.CopyService;
-import com.ista.dmi.service.DbUpdateService;
-import com.ista.dmi.service.GitService;
+import com.ista.dmi.enumeration.ShellCommands;
+import com.ista.dmi.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +34,9 @@ public class DeploymentController {
   @Autowired
   private CopyService copyService;
 
+  @Autowired
+  private WildflyService wildflyService;
+
   @RequestMapping(value = "/deployment", method = GET)
   public String getDeployment(Model model) {
     model.addAttribute("buildModules", modules);
@@ -47,7 +49,7 @@ public class DeploymentController {
   
 
   @RequestMapping(value = "/deployment", method = POST)
-  public Model postDeployment(@ModelAttribute DeploymentModel deploymentModel, Model model) {
+  public Model postDeployment(@ModelAttribute DeploymentModel deploymentModel, Model model) throws IOException {
     model.addAttribute("buildModules", modules);
     model.addAttribute("dbModules", dbModules);
     model.addAttribute("copyModules", copyModules);
@@ -63,20 +65,30 @@ public class DeploymentController {
       mavenExitCode = buildService.build(deploymentModel.getDeployment());
     }
 
+    int wildflyRestartExitCode = -1;
+    if (deploymentModel.isDbUpdate() || !CollectionUtils.isEmpty(deploymentModel.getCopyModules())) {
+      wildflyRestartExitCode = wildflyService.execute(ShellCommands.WIDLFLY_STOP);
+    }
+
     int liquibaseExitCode = -1;
     if (deploymentModel.isDbUpdate()) {
       liquibaseExitCode = dbUpdateService.update();
     }
 
-    int copyExidCode = -1;
+    int copyExitCode = -1;
     if (!CollectionUtils.isEmpty(deploymentModel.getCopyModules())) {
-      copyExidCode = copyService.copy(deploymentModel.getCopyModules());
+      copyExitCode = copyService.copy(deploymentModel.getCopyModules());
+    }
+
+    if (deploymentModel.isDbUpdate() || !CollectionUtils.isEmpty(deploymentModel.getCopyModules())) {
+      wildflyRestartExitCode += wildflyService.execute(ShellCommands.WIDLFLY_START);
     }
 
     model.addAttribute("gitExitCode", gitExitCode);
     model.addAttribute("mavenExitCode", mavenExitCode);
     model.addAttribute("liquibaseExitCode", liquibaseExitCode);
-    model.addAttribute("copyExitCode", copyExidCode);
+    model.addAttribute("copyExitCode", copyExitCode);
+    model.addAttribute("wildflyRestartExitCode", wildflyRestartExitCode);
 
     return model;
   }
