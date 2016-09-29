@@ -20,12 +20,14 @@
       <input data-size="mini" id="gitUpdate" data-on-color="warning" value="gitUpdate" th:field="*{gitUpdate}" type="checkbox" class="form-controll"/>
     </div>
 
+  <hr/>
+
   <h4>Build modules
   <span th:if="${mavenExitCode} == 0" class="label label-success">Success</span>
   <span th:if="${mavenExitCode} != null and ${mavenExitCode} > 0" class="label label-warning">Failed</span>
   </h4>
   <div class="form-group">
-    <span>Build all</span>
+    <label>Build all</label>
     <input data-size="mini" id="buildAll" name="buildAll" type="checkbox" class="form-controll"/>
   </div>
 
@@ -35,6 +37,8 @@
       <input data-size="mini" th:id="${iterStat.index}" th:value="${buildModule}" th:field="*{deployment}" type="checkbox" class="form-controll build"/>
     </div>
   </div>
+
+  <hr/>
 
   <h4>Update database
   <span th:if="${liquibaseExitCode} == 0" class="label label-success">Success</span>
@@ -46,14 +50,21 @@
 
     </div>
 
+  <hr/>
+
   <h4>Copy wars
   <span th:if="${copyExitCode} == 0" class="label label-success">Success</span>
   <span th:if="${copyExitCode} != null and ${copyExitCode} > 0" class="label label-warning">Failed</span>
   </h4>
+  <div class="form-group">
+    <label>Copy all</label>
+    <input data-size="mini" id="copyAll" name="copyAll" data-on-color="success" type="checkbox" class="form-controll"/>
+  </div>
+
   <div th:each="copyModule,iterStat : ${copyModules}">
     <div class="form-group">
       <label th:text="|Copy ${copyModule}|" th:for="${iterStat.index}"></label>
-      <input data-size="mini" th:id="${iterStat.index}" data-on-color="success" th:value="${copyModule}" th:field="*{copyModules}" type="checkbox" class="form-controll"/>
+      <input data-size="mini" th:id="${iterStat.index}" data-on-color="success" th:value="${copyModule}" th:field="*{copyModules}" type="checkbox" class="form-controll copy"/>
     </div>
   </div>
 
