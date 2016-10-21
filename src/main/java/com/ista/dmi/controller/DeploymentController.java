@@ -21,7 +21,7 @@ public class DeploymentController {
   private List<String> modules = Arrays.asList("common", "cds", "cus", "pds", "ibs", "pcs", "mdr");
   private List<String> copyModules = Arrays.asList("cds", "cus", "pds", "ibs", "pcs", "mdr");
   private List<String> dbModules = Arrays.asList("cds-dbmigrations", "cus-dbmigrations", "pds-dbmigrations", "ibs-dbmigrations", "pcs-dbmigrations", "mdr-dbmigrations", "pcscamunda-dbmigrations");
-
+  private int exitCode;
   @Autowired
   private BuildService buildService;
 
@@ -58,29 +58,34 @@ public class DeploymentController {
     int gitExitCode = -1;
     if (deploymentModel.isGitUpdate()) {
       gitExitCode = gitService.update();
+      exitCode = gitExitCode;
     }
 
     int mavenExitCode = -1;
-    if (!CollectionUtils.isEmpty(deploymentModel.getDeployment())) {
+    if (!CollectionUtils.isEmpty(deploymentModel.getDeployment()) && exitCode < 1) {
       mavenExitCode = buildService.build(deploymentModel.getDeployment());
+      exitCode += mavenExitCode;
     }
 
     int wildflyRestartExitCode = -1;
-    if (deploymentModel.isDbUpdate() || !CollectionUtils.isEmpty(deploymentModel.getCopyModules())) {
+    if ((deploymentModel.isDbUpdate() || !CollectionUtils.isEmpty(deploymentModel.getCopyModules())) && exitCode < 1) {
       wildflyRestartExitCode = wildflyService.execute(ShellCommands.WIDLFLY_STOP);
+      exitCode += wildflyRestartExitCode;
     }
 
     int liquibaseExitCode = -1;
-    if (deploymentModel.isDbUpdate()) {
+    if (deploymentModel.isDbUpdate() && exitCode < 0) {
       liquibaseExitCode = dbUpdateService.update();
+      exitCode += liquibaseExitCode;
     }
 
     int copyExitCode = -1;
-    if (!CollectionUtils.isEmpty(deploymentModel.getCopyModules())) {
+    if (!CollectionUtils.isEmpty(deploymentModel.getCopyModules()) && exitCode < 1) {
       copyExitCode = copyService.copy(deploymentModel.getCopyModules());
+      exitCode += copyExitCode;
     }
 
-    if (deploymentModel.isDbUpdate() || !CollectionUtils.isEmpty(deploymentModel.getCopyModules())) {
+    if ((deploymentModel.isDbUpdate() || !CollectionUtils.isEmpty(deploymentModel.getCopyModules())) && exitCode < 1) {
       wildflyRestartExitCode += wildflyService.execute(ShellCommands.WIDLFLY_START);
     }
 
